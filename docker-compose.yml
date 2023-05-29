@@ -1,0 +1,49 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  airflow:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8500:8080
+    volumes:
+      - ./dags:/usr/local/airflow/dags
+      - ./data:/usr/local/airflow/data
+      - ./scripts:/usr/local/airflow/scripts
+      - ./airflow.cfg:/usr/local/airflow/airflow.cfg
+    environment:
+      AIRFLOW_HOME: /usr/local/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: false
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+      AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "true"
+      AIRFLOW__CORE__DEFAULT_TASK_TIMEOUT: 3600
+    depends_on:
+      - postgres
+    command:
+      - bash
+      - -c
+      - |
+        airflow db init
+        airflow users create \
+          --username admin \
+          --firstname David \
+          --lastname Iliaguiev \
+          --role Admin \
+          --email iliaguievdavid@gmail.com \
+          --password admin
+        airflow scheduler & airflow webserver
+
+volumes:
+  postgres_data: {}

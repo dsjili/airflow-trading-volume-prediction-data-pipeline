@@ -1,0 +1,8 @@
+pandas
+apache-airflow==2.6.1
+pyarrow
+boto3
+scikit-learn
+flask
+psycopg2
+fastparquet

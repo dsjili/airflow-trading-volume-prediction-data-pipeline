@@ -1,0 +1,7 @@
+data/*
+*.ipynb
+*.parquet
+*.csv
+__pycache__
+*.joblib
+*.zip
